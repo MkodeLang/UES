@@ -2,7 +2,7 @@
 let UESLexer = (code) => {
     var codeLength = code.length /* stores the code length for faster runtime.*/, store = ''/* stores characters and acts as a buffer */, doubleQuoteFlag = false, singleQuoteFlag = false /* Boolean flags to check if the present character is inside a string */, tokenStream = [];// Array to store the tokens
     // List containing all seperators
-    const opFirstChars = ['=','+','-','*','/','%','&','|','!','~','>','<',';',':',',','[',']','{','}','==','===','!=','!==','++','--','<<','>>','<=>','<=','>=','(',')','><'];
+    const opFirstChars = ['=','+','-','*','/','%','&','|','!','~','>','<',';',':',',','[',']','{','}','==','===','!=','!==','++','--','<<','>>','<=>','<=','>=','(',')','><','**','??'];
     // for loop running through the whole "code string"
     for (i = 0; i < codeLength; i++) {
         if (singleQuoteFlag||doubleQuoteFlag) { // checks if the present character is inside a string. If it is, it ignores all the rules.
@@ -62,6 +62,8 @@ let toOwnDataType = (argument) => {
     if (typeof argument === 'string') {
         if (argument === 'true') {return true;}
         else if (argument === 'false') {return false;}
+        else if (argument === 'null') {return null;}
+        else if (argument === 'undefined') {return undefined;}
         else if (argument[0] === '\'' && argument[argument.length - 1] === '\'') {
             var store = '', i, argumentLength = argument.length;
             for (i = 1; i < (argumentLength - 1); i++) {
@@ -88,52 +90,64 @@ let evaluateOp = (argument1, operator, argument2) => {
     argument1 = toOwnDataType(argument1);
     argument2 = toOwnDataType(argument2);
     switch (operator) {
-        case '><':
+        case '><': // Concatation Operator
             return argument1.toString() + argument2.toString();
-        case '+':
+        case '+': //Addition Operator
             return parseFloat(argument1) + parseFloat(argument2);
-        case '-':
+        case '-': // Subtraction Operator
             return parseFloat(argument1) - parseFloat(argument2);
-        case '*':
+        case '*': // Multiplication Operator
             return parseFloat(argument1) * parseFloat(argument2);
-        case '/':
+        case '/': // Division Operator
             return parseFloat(argument1) / parseFloat(argument2);
-        case '%':
+        case '%': // Modulo Operator
             return parseFloat(argument1) % parseFloat(argument2);
-        case '>':
+        case '>': // Greater Than Operator
             return parseFloat(argument1) > parseFloat(argument2);
-        case '<':
+        case '<': // Less Than Operator
             return parseFloat(argument1) < parseFloat(argument2);
-        case '>=':
+        case '>=': // Greater Than or Equal To Operator
             return parseFloat(argument1) >= parseFloat(argument2);
-        case '<=':
+        case '<=': // Less Than or Equal To Operator
             return parseFloat(argument1) <= parseFloat(argument2);
-        case '<=>':
+        case '<=>': // Spaceship Operator
             if (parseFloat(argument1) > parseFloat(argument2)) return 1;
             else if (parseFloat(argument1) < parseFloat(argument2)) return -1;
             else return 0;
-        case '>>':
+        case '>>': // Bitwise right-shift Operator
             return parseInt(argument1) >> parseInt(argument2);
-        case '<<':
+        case '<<': // Bitwise left-shift Operator
             return parseInt(argument1) << parseInt(argument2);
-        case '>>>':
+        case '>>>': // Unsigned right-shift Operator
             return parseInt(argument1) >>> parseInt(argument2);
-        case '==':
+        case '==': // Equal to Operator
             return argument1 == argument2;
-        case '!=':
+        case '!=': // Not Equal to Operator
             return argument1 == argument2;
-        case '===':
+        case '===': // Strict Equal Operator
             return argument1 === argument2;
-        case '!==':
+        case '!==': // Strict Not Equal Operator
             return argument1 !== argument2;
-        default :
+        case '&&': // Logical AND Operator
+            return argument1 && argument2;
+        case '||': // Logical OR Operator
+            return argument1 || argument2;
+        case '&':// Bitwise AND Operator
+            return argument1 & argument2;
+        case '|': // Bitwise OR Operator
+            return argument1 | argument2;
+        case '**': // Exponentiation Operator
+            return argument1 ** argument2;
+        case '??': // Nullish coalescing Operator
+            return argument1 ?? argument2;
+        default : // Exception Handeling
             console.log("operator = " + operator);
             throw new Error("Unexpected Character");
     }
 }
 
 let getFirstPrecedence = (precedenceValue, operators) => {
-    const opPrecedence = [['*','/','%'],['+','-','><']];
+    const opPrecedence = [['**'],['*','/','%'],['+','-','><'],['<<','>>','>>>'],['<','<=','>','>='],['==','!=','===','!=='],['<=>'],['&'],['^'],['|'],['&&'],['||'],['??']];
     const opPrecedenceLength = opPrecedence[precedenceValue].length;
     var index = Infinity;
     for (i = 0; i < opPrecedenceLength; i++){
@@ -145,16 +159,17 @@ let getFirstPrecedence = (precedenceValue, operators) => {
 }
 
 let solveUesExpression = (opArray) => {
-    for (precedence = 0 ; precedence < 2; precedence++) {
+    for (precedence = 0 ; precedence < 13; precedence++) {
         while (true) {
             var opAt = getFirstPrecedence(precedence, opArray);
             if (opAt === Infinity) break;
+            var operator = opArray[opAt];
             var argument1 = opArray[opAt - 1];
             var argument2 = opArray[opAt + 1];
-            var operator = opArray[opAt];
             opArray.splice(opAt-1, 3);
             opArray.splice(opAt-1, 0, evaluateOp(argument1, operator, argument2));
         }
     }
     return opArray;
 }
+
