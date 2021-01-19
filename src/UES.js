@@ -58,14 +58,38 @@ let UESLexer = (code) => {
     return tokenStream; // Returns token array
 }
 
-let UES = (expression) => {
-    
+let toOwnDataType = (argument) => {
+    if (typeof argument === 'string') {
+        if (argument === 'true') {return true;}
+        else if (argument === 'false') {return false;}
+        else if (argument[0] === '\'' && argument[argument.length - 1] === '\'') {
+            var store = '', i, argumentLength = argument.length;
+            for (i = 1; i < (argumentLength - 1); i++) {
+                store += argument[i];
+            }
+            return store;
+        } else if (argument[0] === '\"' && argument[argument.length - 1] === '\"') {
+            var store = '', i, argumentLength = argument.length;
+            for (i = 1; i < (argumentLength - 1); i++) {
+                if (argument[i] === '\\' && ['s','\'','\"'].includes(argument[i + 1])) {
+                    if (argument[i + 1] === 's') store += '\\';
+                    else store += argument[i + 1];
+                    i++;
+                } else {
+                    store += argument[i];
+                }
+            }
+            return store;
+        } else {return parseFloat(argument);}
+    } else {return argument;}
 }
 
 let evaluateOp = (argument1, operator, argument2) => {
+    argument1 = toOwnDataType(argument1);
+    argument2 = toOwnDataType(argument2);
     switch (operator) {
         case '><':
-            return (argument1) + (argument2);
+            return argument1.toString() + argument2.toString();
         case '+':
             return parseFloat(argument1) + parseFloat(argument2);
         case '-':
@@ -80,24 +104,28 @@ let evaluateOp = (argument1, operator, argument2) => {
             return parseFloat(argument1) > parseFloat(argument2);
         case '<':
             return parseFloat(argument1) < parseFloat(argument2);
-        case '%':
-            return parseFloat(argument1) % parseFloat(argument2);
+        case '>=':
+            return parseFloat(argument1) >= parseFloat(argument2);
+        case '<=':
+            return parseFloat(argument1) <= parseFloat(argument2);
         case '<=>':
             if (parseFloat(argument1) > parseFloat(argument2)) return 1;
             else if (parseFloat(argument1) < parseFloat(argument2)) return -1;
             else return 0;
-        case '-':
-            return parseFloat(argument1) - parseFloat(argument2);
-        case '*':
-            return parseFloat(argument1) * parseFloat(argument2);
-        case '/':
-            return parseFloat(argument1) / parseFloat(argument2);
-        case '%':
-            return parseFloat(argument1) % parseFloat(argument2);
-        /*case '>':
-            return parseFloat(argument1) > parseFloat(argument2);
-        case '<':
-            return parseFloat(argument1) < parseFloat(argument2);*/
+        case '>>':
+            return parseInt(argument1) >> parseInt(argument2);
+        case '<<':
+            return parseInt(argument1) << parseInt(argument2);
+        case '>>>':
+            return parseInt(argument1) >>> parseInt(argument2);
+        case '==':
+            return argument1 == argument2;
+        case '!=':
+            return argument1 == argument2;
+        case '===':
+            return argument1 === argument2;
+        case '!==':
+            return argument1 !== argument2;
         default :
             console.log("operator = " + operator);
             throw new Error("Unexpected Character");
@@ -105,7 +133,7 @@ let evaluateOp = (argument1, operator, argument2) => {
 }
 
 let getFirstPrecedence = (precedenceValue, operators) => {
-    const opPrecedence = [['*','/','%'],['+','-']];
+    const opPrecedence = [['*','/','%'],['+','-','><']];
     const opPrecedenceLength = opPrecedence[precedenceValue].length;
     var index = Infinity;
     for (i = 0; i < opPrecedenceLength; i++){
