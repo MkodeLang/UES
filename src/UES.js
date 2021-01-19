@@ -1,3 +1,12 @@
+let UESToString = (value) => {
+    try {
+        return value.toString();
+    } catch {
+        if (value === null) return 'null';
+        else if (value === undefined) return 'undefined';
+    }
+}
+
 // This function recieves uncommented code and lexes it. Returns js:array
 let UESLexer = (code) => {
     var codeLength = code.length /* stores the code length for faster runtime.*/, store = ''/* stores characters and acts as a buffer */, doubleQuoteFlag = false, singleQuoteFlag = false /* Boolean flags to check if the present character is inside a string */, tokenStream = [];// Array to store the tokens
@@ -91,7 +100,7 @@ let evaluateOp = (argument1, operator, argument2) => {
     argument2 = toOwnDataType(argument2);
     switch (operator) {
         case '><': // Concatation Operator
-            return argument1.toString() + argument2.toString();
+            return UESToString(argument1) + UESToString(argument2);
         case '+': //Addition Operator
             return parseFloat(argument1) + parseFloat(argument2);
         case '-': // Subtraction Operator
@@ -173,3 +182,5 @@ let solveUesExpression = (opArray) => {
     return opArray;
 }
 
+console.log(solveUesExpression(UESLexer('null><12')));
+// node src/ues.js
