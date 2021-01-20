@@ -1,4 +1,4 @@
-class UES {
+export class UES {
     constructor () { 
         this.ToString = (value) => {
             try {

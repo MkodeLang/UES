@@ -1,0 +1,20 @@
+{
+    "name": "ues",
+    "version": "1.0.0",
+    "description": "UES expression solver for Mkode",
+    "main": "src/UES.js",
+    "type": "module",
+    "scripts": {
+      "test": "'echo 0'"
+    },
+    "repository": {
+      "type": "git",
+      "url": "git+https://github.com/MkodeLang/UES.git"
+    },
+    "author": "Rak Laptudirm",
+    "license": "MIT",
+    "bugs": {
+      "url": "https://github.com/MkodeLang/UES/issues"
+    },
+    "homepage": "https://github.com/MkodeLang/UES#readme"
+  }
