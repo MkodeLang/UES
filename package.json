@@ -5,7 +5,10 @@
     "main": "src/UES.js",
     "type": "module",
     "scripts": {
-      "test": "'echo 0'"
+      "test": "standard"
+    },
+    "devDependencies": {
+    "standard": "*"
     },
     "repository": {
       "type": "git",
